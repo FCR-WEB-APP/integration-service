@@ -3,11 +3,8 @@ package com.example.Jwt_Service.Service;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 
-import javax.crypto.KeyGenerator;
-import javax.crypto.SecretKey;
 import java.security.Key;
-import java.security.NoSuchAlgorithmException;
-import java.util.Base64;
+
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
@@ -18,34 +15,20 @@ import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
-
 @Service
 public class JwtService {
 
-
-    private String secretkey = "";
-
-    public JwtService() {
-
-        try {
-            KeyGenerator keyGen = KeyGenerator.getInstance("HmacSHA256");
-            SecretKey sk = keyGen.generateKey();
-            secretkey = Base64.getEncoder().encodeToString(sk.getEncoded());
-        } catch (NoSuchAlgorithmException e) {
-            throw new RuntimeException(e);
-        }
-    }
+    private final String secretkey = "a3h57U3fJwG5QpZ9YzPc8fF0UiM+Qo1lBhI5b63P1lI=";
 
     public String generateToken(String username) {
         Map<String, Object> claims = new HashMap<>();
         return Jwts.builder()
-                .setClaims(claims) // Add your claims here
+                .setClaims(claims)
                 .setSubject(username)
                 .setIssuedAt(new Date(System.currentTimeMillis()))
-                .setExpiration(new Date(System.currentTimeMillis() + 60 * 60 * 30)) // Set expiration time (e.g., 1 day)
-                .signWith(getKey()) // Use the secret key for signing
+                .setExpiration(new Date(System.currentTimeMillis() + 60 * 60 * 1000)) // 1 hour
+                .signWith(getKey())
                 .compact();
-
     }
 
     private Key getKey() {
@@ -54,7 +37,6 @@ public class JwtService {
     }
 
     public String extractUserName(String token) {
-        // extract the username from jwt token
         return extractClaim(token, Claims::getSubject);
     }
 
@@ -64,19 +46,16 @@ public class JwtService {
     }
 
     private Claims extractAllClaims(String token) {
-        // Assuming you have a method getKey() that returns your SecretKey
-        Key key = getKey(); // Fetch the signing key
-
         return Jwts.parserBuilder()
-                .setSigningKey(key) // Set the signing key for verification
+                .setSigningKey(getKey())
                 .build()
-                .parseClaimsJws(token) // Use parseClaimsJws instead of parseSignedClaims
-                .getBody(); // Get the claims from the body
+                .parseClaimsJws(token)
+                .getBody();
     }
 
     public boolean validateToken(String token, UserDetails userDetails) {
-        final String userName = extractUserName(token);
-        return (userName.equals(userDetails.getUsername()) && !isTokenExpired(token));
+        final String username = extractUserName(token);
+        return (username.equals(userDetails.getUsername()) && !isTokenExpired(token));
     }
 
     private boolean isTokenExpired(String token) {
@@ -86,6 +65,4 @@ public class JwtService {
     private Date extractExpiration(String token) {
         return extractClaim(token, Claims::getExpiration);
     }
-
-
 }
