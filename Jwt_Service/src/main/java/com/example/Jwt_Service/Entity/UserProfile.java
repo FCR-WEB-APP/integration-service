@@ -10,14 +10,16 @@ import lombok.NoArgsConstructor;
 
 
 
-@AllArgsConstructor
-@NoArgsConstructor
-public class UserProfile {
+    @AllArgsConstructor
+    @NoArgsConstructor
+    public class UserProfile {
 
-    private Long userId;
-    private String name;
-    private String roles;
-    private char isActive;
+        private Long userId;
+        private String name;
+        private String password;
+        private String roles;
+        private char isActive;
+        private String email;
 
     public Long getUserId() {
         return userId;
@@ -67,6 +69,5 @@ public class UserProfile {
         this.email = email;
     }
 
-    private String password;
-    private String email;
+
 }
